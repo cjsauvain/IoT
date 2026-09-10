@@ -1,0 +1,40 @@
+Vagrant.configure("2") do |config|
+  # VMs OS
+  config.vm.box = "debian/trixie64"
+
+  k3s_token = "my-shared-secret-k3s-token"
+  server_ip = "192.168.56.110"
+  server_worker_ip = "192.168.56.111"
+
+  # VMs configuration
+  config.vm.provider "libvirt" do |libvirt|
+    libvirt.driver = "qemu"
+    libvirt.cpus = 2
+    libvirt.memory = 2048
+  end
+
+  # VMs dependencies
+  config.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt install curl -y
+  SHELL
+
+  config.vm.define "afabyS" do |v1|
+    v1.vm.hostname = "afabyS"
+    v1.vm.network "private_network", ip: "#{server_ip}"
+    v1.vm.provision "shell", inline: <<-SHELL
+      CURRENT_IP=$(ip -br addr show eth1 | awk '{print $3}' | awk -F '/' '{print $1}')
+      curl -sfL https://get.k3s.io | INSTALLATION_K3S_EXEC="server --node-ip $CURRENT_IP" K3S_TOKEN=#{k3s_token} sh -s -
+      sudo sed -i "s/127.0.0.1/#{server_ip}/" /etc/rancher/k3s/k3s.yaml
+    SHELL
+  end
+
+  config.vm.define "afabySW" do |v2|
+    v2.vm.hostname = "afabySW"
+    v2.vm.network "private_network", ip: "#{server_worker_ip}"
+    v2.vm.provision "shell", inline: <<-SHELL
+      CURRENT_IP=$(ip -br addr show eth1 | awk '{print $3}' | awk -F '/' '{print $1}')
+      curl -sfL https://get.k3s.io | INSTALLATION_K3S_EXEC="agent --node-ip $CURRENT_IP" K3S_URL=https://#{server_ip}:6443 K3S_TOKEN=#{k3s_token} sh -
+    SHELL
+  end
+end
