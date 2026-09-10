@@ -1,0 +1,22 @@
+services:
+  app1:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    image: app1:latest
+    # ports:
+    #   - "80:80"
+  app2:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    image: app2:latest
+    # ports:
+    #   - "80:80"
+  app3:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    image: app3:latest
+    # ports:
+    #   - "80:80"
