@@ -1,33 +1,43 @@
 Vagrant.configure("2") do |config|
-  # VMs OS
   config.vm.box = "debian/trixie64"
 
   server_ip = "192.168.56.110"
 
-  # VMs configuration
   config.vm.provider "libvirt" do |libvirt|
     libvirt.driver = "qemu"
     libvirt.cpus = 2
     libvirt.memory = 2048
   end
 
-  # VM dependencies
   config.vm.define "afabyS" do |v|
     v.vm.hostname = "afabyS"
     v.vm.network "private_network", ip: server_ip
     v.vm.provision "shell", inline: <<-SHELL
+      set -xe
       sudo apt update -y
-      sudo apt install curl make ca-certificates -y
+      sudo apt install ca-certificates curl -y
       sudo install -m 0755 -d /etc/apt/keyrings
-      curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
       sudo chmod a+r /etc/apt/keyrings/docker.asc
       sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
       sudo apt update -y
       sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-      curl -sfL https://get.k3s.io | INSTALLATION_K3S_EXEC="server --node-ip #{server_ip}" sh -s - --tls-san #{server_ip}
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --node-ip #{server_ip} --write-kubeconfig-mode 644" sh -s - --tls-san #{server_ip}
       sudo sed -i "s/127.0.0.1/#{server_ip}/" /etc/rancher/k3s/k3s.yaml
       cd /vagrant
-      sudo docker compose up
+      export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+      sudo docker compose up -d
+      sudo docker save app1:latest | sudo k3s ctr images import -
+      sudo docker save app2:latest | sudo k3s ctr images import -
+      sudo docker save app3:latest | sudo k3s ctr images import -
+      ./deploy.sh
     SHELL
   end
 end
