@@ -12,10 +12,13 @@ namespaces:
 	kubectl create namespace $(DEV_NS)
 
 argocd:
-	kubectl apply -n $(ARGOCD_NS) -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
+	kubectl apply -n $(ARGOCD_NS) -f config/argocd/install.yaml --server-side --force-conflicts
 
 password:
 	kubectl -n $(ARGOCD_NS) get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+argocd_pods:
+	kubectl get pods -n $(ARGOCD_NS)
 
 forward:
 	kubectl port-forward svc/argocd-server -n $(ARGOCD_NS) 8080:443
@@ -25,4 +28,3 @@ clean:
 
 re: clean run
 
-.PHONY: run cluster namespaces argocd password forward clean re
