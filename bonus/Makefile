@@ -15,6 +15,7 @@ namespaces:
 
 argocd:
 	kubectl apply -n $(ARGOCD_NS) -f config/argocd/install.yaml --server-side --force-conflicts
+	kubectl apply -f config/argocd/application.yaml
 
 gitlab:
 	kubectl apply -n $(GITLAB_NS) -f config/gitlab/install.yaml
