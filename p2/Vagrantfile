@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
     libvirt.memory = 2048
   end
 
-  config.vm.define "afabyS" do |v|
-    v.vm.hostname = "afabyS"
+  config.vm.define "jsauvainS" do |v|
+    v.vm.hostname = "jsauvainS"
     v.vm.network "private_network", ip: server_ip
     v.vm.provision "shell", inline: <<-SHELL
       set -xe
