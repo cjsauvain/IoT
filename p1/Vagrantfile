@@ -23,9 +23,7 @@ Vagrant.configure("2") do |config|
     v1.vm.hostname = "afabyS"
     v1.vm.network "private_network", ip: "#{server_ip}"
     v1.vm.provision "shell", inline: <<-SHELL
-      CURRENT_IP=$(ip -br addr show eth1 | awk '{print $3}' | awk -F '/' '{print $1}')
-      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --node-ip $CURRENT_IP" K3S_TOKEN=#{k3s_token} sh -s -
-      sudo sed -i "s/127.0.0.1/#{server_ip}/" /etc/rancher/k3s/k3s.yaml
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --node-ip #{server_ip}" K3S_TOKEN=#{k3s_token} sh -s -
     SHELL
   end
 
@@ -33,8 +31,7 @@ Vagrant.configure("2") do |config|
     v2.vm.hostname = "afabySW"
     v2.vm.network "private_network", ip: "#{server_worker_ip}"
     v2.vm.provision "shell", inline: <<-SHELL
-      CURRENT_IP=$(ip -br addr show eth1 | awk '{print $3}' | awk -F '/' '{print $1}')
-      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --node-ip $CURRENT_IP" K3S_URL=https://#{server_ip}:6443 K3S_TOKEN=#{k3s_token} sh -
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --node-ip #{server_worker_ip}" K3S_URL=https://#{server_ip}:6443 K3S_TOKEN=#{k3s_token} sh -
     SHELL
   end
 end
