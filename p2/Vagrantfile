@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
     libvirt.memory = 2048
   end
 
-  config.vm.define "jsauvainS" do |v|
-    v.vm.hostname = "jsauvainS"
+  config.vm.define "afabyS" do |v|
+    v.vm.hostname = "afabyS"
     v.vm.network "private_network", ip: server_ip
     v.vm.provision "shell", inline: <<-SHELL
       set -xe
@@ -30,7 +30,6 @@ EOF
       sudo apt update -y
       sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
       curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --node-ip #{server_ip} --write-kubeconfig-mode 644" sh -s - --tls-san #{server_ip}
-      sudo sed -i "s/127.0.0.1/#{server_ip}/" /etc/rancher/k3s/k3s.yaml
       cd /vagrant
       export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
       sudo docker compose up -d
