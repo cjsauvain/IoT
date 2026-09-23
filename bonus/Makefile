@@ -14,11 +14,11 @@ namespaces:
 	kubectl create namespace $(GITLAB_NS)
 
 argocd:
-	kubectl apply -n $(ARGOCD_NS) -f config/argocd/install.yaml --server-side --force-conflicts
-	kubectl apply -f config/argocd/application.yaml
+	kubectl apply -n $(ARGOCD_NS) -f confs/argocd/install.yaml --server-side --force-conflicts
+	kubectl apply -f confs/argocd/application.yaml
 
 gitlab:
-	kubectl apply -n $(GITLAB_NS) -f config/gitlab/install.yaml
+	kubectl apply -n $(GITLAB_NS) -f confs/gitlab/install.yaml
 
 password:
 	kubectl -n $(ARGOCD_NS) get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d

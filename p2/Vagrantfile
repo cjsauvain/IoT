@@ -36,7 +36,7 @@ EOF
       sudo docker save app1:latest | sudo k3s ctr images import -
       sudo docker save app2:latest | sudo k3s ctr images import -
       sudo docker save app3:latest | sudo k3s ctr images import -
-      ./deploy.sh
+      ./scripts/deploy.sh
     SHELL
   end
 end
