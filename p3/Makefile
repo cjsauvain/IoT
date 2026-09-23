@@ -12,8 +12,8 @@ namespaces:
 	kubectl create namespace $(DEV_NS)
 
 argocd:
-	kubectl apply --server-side --force-conflicts -n $(ARGOCD_NS) -f config/argocd/install.yaml
-	kubectl apply -f config/argocd/application.yaml
+	kubectl apply --server-side --force-conflicts -n $(ARGOCD_NS) -f confs/argocd/install.yaml
+	kubectl apply -f confs/argocd/application.yaml
 
 password:
 	kubectl -n $(ARGOCD_NS) get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
